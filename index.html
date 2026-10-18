@@ -8,6 +8,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Photos are decorative thumbnails: don't select, drag, or invoke image callouts. */
+        img {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+        /* Avoid sticky hover animations and text selection on touch devices. */
+        @media (hover: none), (pointer: coarse) {
+            body, body * {
+                -webkit-tap-highlight-color: transparent;
+            }
+            #photos-grid, #videos-grid,
+            #photos-grid *, #videos-grid * {
+                -webkit-user-select: none;
+                user-select: none;
+            }
+            #photos-grid .group\/thumb > *,
+            #videos-grid .group\/thumb > * {
+                transform: none !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
 
@@ -120,7 +145,7 @@
             
             collageContainer.innerHTML = sampleImages.map(imgUrl => `
                 <div class="aspect-square overflow-hidden rounded-lg opacity-65 shadow-inner">
-                    <img src="${imgUrl}" onerror="this.parentElement.style.display='none'" class="w-full h-full object-cover" />
+                    <img src="${imgUrl}" alt="" draggable="false" onerror="this.parentElement.style.display='none'" class="w-full h-full object-cover" />
                 </div>
             `).join('');
 
@@ -134,7 +159,7 @@
             if (imgArray.length === 1) {
                 return `
                     <div class="w-full h-44 sm:h-52 rounded-xl bg-zinc-950 overflow-hidden border border-zinc-700/80 relative shadow-xl group/thumb cursor-pointer">
-                        <img src="img/${imgArray[0]}" class="w-full h-full object-cover group-hover/thumb:scale-110 transition-all duration-300 ease-out">
+                        <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover group-hover/thumb:scale-110 transition-all duration-300 ease-out">
                         ${overlayIconHTML}
                     </div>
                 `;
@@ -143,11 +168,11 @@
                     <div class="w-full h-44 sm:h-52 relative flex-shrink-0 cursor-pointer group/thumb py-2 overflow-visible">
                         <!-- Back Stacked Card -->
                         <div class="absolute top-2 left-12 w-[72%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-2xl transform rotate-6 z-10 group-hover/thumb:translate-x-12 group-hover/thumb:-translate-y-6 group-hover/thumb:rotate-12 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-8 transition-all duration-300 ease-out">
-                            <img src="img/${imgArray[1]}" class="w-full h-full object-cover">
+                            <img src="img/${imgArray[1]}" alt="" draggable="false" class="w-full h-full object-cover">
                         </div>
                         <!-- Front Main Card -->
                         <div class="absolute top-2 left-4 w-[72%] h-36 sm:h-44 rounded-xl bg-zinc-950 border border-zinc-500 overflow-hidden shadow-2xl z-20 group-hover/thumb:-translate-x-6 group-hover/thumb:-translate-y-2 group-hover/thumb:-rotate-6 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-8 transition-all duration-300 ease-out">
-                            <img src="img/${imgArray[0]}" class="w-full h-full object-cover">
+                            <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover">
                             ${overlayIconHTML}
                         </div>
                     </div>
@@ -158,15 +183,15 @@
                     <div class="w-full h-44 sm:h-52 relative flex-shrink-0 cursor-pointer group/thumb py-2 overflow-visible">
                         <!-- 3rd Back Card -->
                         <div class="absolute top-2 left-16 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-xl transform rotate-12 z-10 group-hover/thumb:translate-x-20 group-hover/thumb:-translate-y-8 group-hover/thumb:rotate-18 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-10 transition-all duration-300 ease-out">
-                            <img src="img/${imgArray[2]}" class="w-full h-full object-cover">
+                            <img src="img/${imgArray[2]}" alt="" draggable="false" class="w-full h-full object-cover">
                         </div>
                         <!-- 2nd Middle Card -->
                         <div class="absolute top-2 left-8 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-2xl transform rotate-6 z-20 group-hover/thumb:translate-x-6 group-hover/thumb:-translate-y-4 group-hover/thumb:rotate-6 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-10 transition-all duration-300 ease-out">
-                            <img src="img/${imgArray[1]}" class="w-full h-full object-cover">
+                            <img src="img/${imgArray[1]}" alt="" draggable="false" class="w-full h-full object-cover">
                         </div>
                         <!-- 1st Front Card -->
                         <div class="absolute top-2 left-0 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-950 border border-zinc-500 overflow-hidden shadow-2xl z-30 group-hover/thumb:-translate-x-6 group-hover/thumb:-translate-y-2 group-hover/thumb:-rotate-6 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-10 transition-all duration-300 ease-out">
-                            <img src="img/${imgArray[0]}" class="w-full h-full object-cover">
+                            <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover">
                             ${overlayIconHTML}
                         </div>
                     </div>
@@ -189,25 +214,31 @@
             photosContainer.innerHTML = '';
             photoAlbumsMeta.forEach(album => {
                 const thumbHTML = renderStackedThumbnailHTML(album.images);
-                const card = document.createElement('a');
-                card.href = album.url;
-                card.target = "_blank";
-                card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-blue-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group";
-                card.innerHTML = `
-                    ${thumbHTML}
+                // The thumbnail is decorative and never navigates. The album details link to the supplied URL.
+                const card = document.createElement('div');
+                card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-blue-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group select-none";
+                const detailsLink = document.createElement('a');
+                detailsLink.href = album.url;
+                detailsLink.target = "_blank";
+                detailsLink.rel = "noopener noreferrer";
+                detailsLink.setAttribute('aria-label', `Open photo album: ${album.title}`);
+                detailsLink.className = "block rounded-lg no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400";
+                detailsLink.innerHTML = `
                     <div class="flex items-start justify-between gap-3 mt-1">
                         <div class="min-w-0">
-                            <h3 class="font-bold text-white tracking-tight text-base sm:text-lg truncate">${album.title}</h3>
+                            <h3 class="font-bold text-white tracking-tight text-base sm:text-lg">${album.title}</h3>
                             <span class="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${album.tagStyle}">
                                 ${album.tag}
                             </span>
                         </div>
-                        <i data-lucide="external-link" class="w-4 h-4 text-zinc-400 group-hover:text-white transition flex-shrink-0 mt-1"></i>
+                        <i data-lucide="external-link" class="w-4 h-4 text-zinc-400 flex-shrink-0 mt-1"></i>
                     </div>
-                    <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed border-t border-zinc-800/80 pt-3">
+                    <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed border-t border-zinc-800/80 pt-3 mt-3">
                         ${album.description}
                     </p>
                 `;
+                card.innerHTML = thumbHTML;
+                card.appendChild(detailsLink);
                 photosContainer.appendChild(card);
             });
 
