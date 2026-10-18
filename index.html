@@ -9,6 +9,12 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* Prevent layout shift and accidental pinch-zoom on mobile when elements pop out of bounds */
+        html, body {
+            overflow-x: clip;
+            touch-action: manipulation;
+        }
+
         /* Photos are decorative thumbnails: don't select, drag, or invoke image callouts. */
         img {
             -webkit-user-select: none;
@@ -24,34 +30,34 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Out-of-bounds pop & jump animation for mobile/desktop taps & hovers */
+        /* Click/tap can trigger the same thumbnail spread on both desktop and mobile. */
         .group\/thumb.is-animated > img,
         .group\/thumb.is-animated > div img {
-            transform: scale(1.15) translateY(-0.5rem);
+            transform: scale(1.1);
         }
         .group\/thumb.stack-two.is-animated > .stack-card:nth-child(1) {
-            transform: translate(1.8rem, -2.2rem) rotate(8deg) scale(1.2) !important;
+            transform: translate(3rem, -1.5rem) rotate(12deg) scale(1.1) !important;
             z-index: 50 !important;
         }
         .group\/thumb.stack-two.is-animated > .stack-card:nth-child(2) {
-            transform: translate(-1.2rem, -2.2rem) rotate(-6deg) scale(1.2) !important;
+            transform: translate(-1.5rem, -0.5rem) rotate(-6deg) scale(1.1) !important;
             z-index: 50 !important;
         }
         .group\/thumb.stack-three.is-animated > .stack-card:nth-child(1) {
-            transform: translate(2.5rem, -2.5rem) rotate(12deg) scale(1.2) !important;
+            transform: translate(5rem, -2rem) rotate(18deg) scale(1.1) !important;
             z-index: 50 !important;
         }
         .group\/thumb.stack-three.is-animated > .stack-card:nth-child(2) {
-            transform: translate(0rem, -2.8rem) rotate(2deg) scale(1.2) !important;
+            transform: translate(1.5rem, -1rem) rotate(6deg) scale(1.1) !important;
             z-index: 50 !important;
         }
         .group\/thumb.stack-three.is-animated > .stack-card:nth-child(3) {
-            transform: translate(-2.2rem, -2.5rem) rotate(-10deg) scale(1.2) !important;
+            transform: translate(-1.5rem, -0.5rem) rotate(-6deg) scale(1.1) !important;
             z-index: 50 !important;
         }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white relative">
 
     <!-- Background Photo Collage & Dark Gradient Overlay -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-45">
@@ -169,45 +175,45 @@
             renderHome();
         }
 
-        // Out-of-Bounds Pop-Up Thumbnail Deck Builder with Safe Vertical Overflow
+        // Smooth Jump & Pop-Up Thumbnail Deck Builder
         function renderStackedThumbnailHTML(imgArray, overlayIconHTML = '') {
             if (!imgArray || imgArray.length === 0) return '';
             
             if (imgArray.length === 1) {
                 return `
-                    <div class="w-full h-44 sm:h-52 rounded-xl bg-zinc-950 overflow-visible relative shadow-xl group/thumb cursor-pointer pt-3 px-3" onclick="toggleThumbnailAnimation(event, this)">
-                        <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover rounded-lg group-hover/thumb:scale-110 transition-all duration-300 ease-out">
+                    <div class="w-full h-44 sm:h-52 rounded-xl bg-zinc-950 overflow-hidden border border-zinc-700/80 relative shadow-xl group/thumb cursor-pointer" onclick="toggleThumbnailAnimation(event, this)">
+                        <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover group-hover/thumb:scale-110 transition-all duration-300 ease-out">
                         ${overlayIconHTML}
                     </div>
                 `;
             } else if (imgArray.length === 2) {
                 return `
-                    <div class="w-full h-48 sm:h-56 relative flex-shrink-0 cursor-pointer group/thumb stack-two pt-4 px-3 overflow-visible" onclick="toggleThumbnailAnimation(event, this)">
+                    <div class="w-full h-44 sm:h-52 relative flex-shrink-0 cursor-pointer group/thumb stack-two py-2 overflow-visible" onclick="toggleThumbnailAnimation(event, this)">
                         <!-- Back Stacked Card -->
-                        <div class="stack-card absolute top-4 left-12 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-2xl transform rotate-6 z-10 hover:!z-50 hover:!scale-115 hover:!-translate-y-4 transition-all duration-300 ease-out">
+                        <div class="stack-card absolute top-2 left-12 w-[72%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-2xl transform rotate-6 z-10 group-hover/thumb:translate-x-12 group-hover/thumb:-translate-y-6 group-hover/thumb:rotate-12 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-8 transition-all duration-300 ease-out">
                             <img src="img/${imgArray[1]}" alt="" draggable="false" class="w-full h-full object-cover">
                         </div>
                         <!-- Front Main Card -->
-                        <div class="stack-card absolute top-4 left-6 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-950 border border-zinc-500 overflow-hidden shadow-2xl z-20 hover:!z-50 hover:!scale-115 hover:!-translate-y-4 transition-all duration-300 ease-out">
+                        <div class="stack-card absolute top-2 left-4 w-[72%] h-36 sm:h-44 rounded-xl bg-zinc-950 border border-zinc-500 overflow-hidden shadow-2xl z-20 group-hover/thumb:-translate-x-6 group-hover/thumb:-translate-y-2 group-hover/thumb:-rotate-6 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-8 transition-all duration-300 ease-out">
                             <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover">
                             ${overlayIconHTML}
                         </div>
                     </div>
                 `;
             } else {
-                // 3 stacked cards that burst out of bounds vertically & upward on hover/tap
+                // 3 stacked cards with guaranteed middle-card prioritization & jump animation
                 return `
-                    <div class="w-full h-48 sm:h-56 relative flex-shrink-0 cursor-pointer group/thumb stack-three pt-4 px-2 overflow-visible" onclick="toggleThumbnailAnimation(event, this)">
+                    <div class="w-full h-44 sm:h-52 relative flex-shrink-0 cursor-pointer group/thumb stack-three py-2 overflow-visible" onclick="toggleThumbnailAnimation(event, this)">
                         <!-- 3rd Back Card -->
-                        <div class="stack-card absolute top-4 left-20 w-[60%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-xl transform rotate-12 z-10 hover:!z-50 hover:!scale-115 hover:!-translate-y-4 transition-all duration-300 ease-out">
+                        <div class="stack-card absolute top-2 left-16 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-xl transform rotate-12 z-10 group-hover/thumb:translate-x-20 group-hover/thumb:-translate-y-8 group-hover/thumb:rotate-18 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-10 transition-all duration-300 ease-out">
                             <img src="img/${imgArray[2]}" alt="" draggable="false" class="w-full h-full object-cover">
                         </div>
                         <!-- 2nd Middle Card -->
-                        <div class="stack-card absolute top-4 left-10 w-[60%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-2xl transform rotate-6 z-20 hover:!z-50 hover:!scale-115 hover:!-translate-y-4 transition-all duration-300 ease-out">
+                        <div class="stack-card absolute top-2 left-8 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-900 border border-zinc-500 overflow-hidden shadow-2xl transform rotate-6 z-20 group-hover/thumb:translate-x-6 group-hover/thumb:-translate-y-4 group-hover/thumb:rotate-6 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-10 transition-all duration-300 ease-out">
                             <img src="img/${imgArray[1]}" alt="" draggable="false" class="w-full h-full object-cover">
                         </div>
                         <!-- 1st Front Card -->
-                        <div class="stack-card absolute top-4 left-2 w-[60%] h-36 sm:h-44 rounded-xl bg-zinc-950 border border-zinc-500 overflow-hidden shadow-2xl z-30 hover:!z-50 hover:!scale-115 hover:!-translate-y-4 transition-all duration-300 ease-out">
+                        <div class="stack-card absolute top-2 left-0 w-[68%] h-36 sm:h-44 rounded-xl bg-zinc-950 border border-zinc-500 overflow-hidden shadow-2xl z-30 group-hover/thumb:-translate-x-6 group-hover/thumb:-translate-y-2 group-hover/thumb:-rotate-6 group-hover/thumb:scale-110 hover:!z-50 hover:!scale-125 hover:!-translate-y-10 transition-all duration-300 ease-out">
                             <img src="img/${imgArray[0]}" alt="" draggable="false" class="w-full h-full object-cover">
                             ${overlayIconHTML}
                         </div>
@@ -217,6 +223,7 @@
         }
 
         function toggleThumbnailAnimation(event, thumbnail) {
+            // Animate on click/tap without navigating or triggering the video card click.
             event.preventDefault();
             event.stopPropagation();
             thumbnail.classList.toggle('is-animated');
@@ -237,8 +244,9 @@
             photosContainer.innerHTML = '';
             photoAlbumsMeta.forEach(album => {
                 const thumbHTML = renderStackedThumbnailHTML(album.images);
+                // The thumbnail is decorative and never navigates. The album details link to the supplied URL.
                 const card = document.createElement('div');
-                card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-blue-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group select-none mt-4";
+                card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-blue-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group select-none";
                 const detailsLink = document.createElement('a');
                 detailsLink.href = album.url;
                 detailsLink.target = "_blank";
@@ -246,7 +254,7 @@
                 detailsLink.setAttribute('aria-label', `Open photo album: ${album.title}`);
                 detailsLink.className = "block rounded-lg no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400";
                 detailsLink.innerHTML = `
-                    <div class="flex items-start justify-between gap-3 mt-2">
+                    <div class="flex items-start justify-between gap-3 mt-1">
                         <div class="min-w-0">
                             <h3 class="font-bold text-white tracking-tight text-base sm:text-lg">${album.title}</h3>
                             <span class="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${album.tagStyle}">
@@ -277,11 +285,11 @@
                 `;
                 const thumbHTML = renderStackedThumbnailHTML(album.images, playOverlay);
                 const card = document.createElement('div');
-                card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-purple-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group cursor-pointer mt-4";
+                card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-purple-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group cursor-pointer";
                 card.onclick = () => openVideoPlayer(album.title, album.url);
                 card.innerHTML = `
                     ${thumbHTML}
-                    <div class="flex items-start justify-between gap-3 mt-2">
+                    <div class="flex items-start justify-between gap-3 mt-1">
                         <div class="min-w-0">
                             <h3 class="font-bold text-white tracking-tight text-base sm:text-lg truncate">${album.title}</h3>
                             <span class="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${album.tagStyle}">
