@@ -17,20 +17,11 @@
             -webkit-user-drag: none;
             user-drag: none;
         }
-        /* Avoid sticky hover animations and text selection on touch devices. */
-        @media (hover: none), (pointer: coarse) {
-            body, body * {
-                -webkit-tap-highlight-color: transparent;
-            }
-            #photos-grid, #videos-grid,
-            #photos-grid *, #videos-grid * {
-                -webkit-user-select: none;
-                user-select: none;
-            }
-            #photos-grid .group\/thumb > *,
-            #videos-grid .group\/thumb > * {
-                transform: none !important;
-            }
+        /* Disable text selection everywhere without changing hover/animation behavior. */
+        body, body * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
     </style>
 </head>
