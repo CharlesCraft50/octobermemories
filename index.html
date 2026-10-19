@@ -114,9 +114,9 @@
             </section>
         </div>
 
-        <!-- Video Player View with Loading Indicator -->
-        <div id="embed-view" class="hidden w-full h-[calc(100vh-120px)] flex flex-col">
-            <div id="embed-container" class="relative w-full h-full rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 shadow-2xl">
+        <!-- Video Player Overlay View (Clicking outside container goes back automatically) -->
+        <div id="embed-view" onclick="handleOutsideIframeClick(event)" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 cursor-pointer">
+            <div id="embed-container" onclick="event.stopPropagation()" class="relative w-full max-w-5xl h-[85vh] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 shadow-2xl cursor-default flex flex-col">
                 <!-- Loading Overlay -->
                 <div id="video-loader" class="absolute inset-0 z-10 bg-zinc-950 flex flex-col items-center justify-center gap-3 transition-opacity duration-300">
                     <i data-lucide="loader-2" class="w-8 h-8 text-purple-400 animate-spin"></i>
@@ -130,30 +130,31 @@
 
     <!-- Application Script -->
     <script>
+        let savedScrollPosition = 0;
+
         const photoAlbumsMeta = [
             { id: "oct-01", title: "October 1, 2026", url: "https://photos.app.goo.gl/bR439kkKMZtmy7Pj6", images: ["01.jpg"], tag: "Arrival & First Day", tagStyle: "bg-blue-500/10 text-blue-400 border-blue-500/20", description: "My first day!" },
             { id: "oct-02", title: "October 2, 2026", url: "https://photos.app.goo.gl/dKthpditi5R1HrWc6", images: ["02.JPG", "02.1.JPG"], tag: "Roberto's & Ukay Ukay", tagStyle: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", description: "Date at Roberto's Siopao — the meatballs and siopao were both good, but the chicken, not so much (which both of us agreed on)! Afterward, we went on an Ukay Ukay spree." },
             { id: "oct-03", title: "October 3, 2026", url: "https://photos.app.goo.gl/rwqwAWCXi7K7phoB9", images: ["03.JPG", "03.1.JPG", "03.2.JPG"], tag: "SM, Sbarro & Dairy Queen", tagStyle: "bg-amber-500/10 text-amber-400 border-amber-500/20", description: "Date in SM, eating at Sbarro and getting treats at Dairy Queen." },
             { id: "oct-04", title: "October 4, 2026", url: "https://photos.app.goo.gl/Mt59KPXZDfPW6aXm6", images: ["04.JPG", "04.1.JPG"], tag: "Guimbal Beach Day", tagStyle: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", description: "Beach day in Guimbal with family." },
             { id: "oct-05", title: "October 5, 2026", url: "https://photos.app.goo.gl/f5ALgUiSUKSHGcE17", images: ["05.jpg", "05.1.jpg"], tag: "School Visit & Samgyupsal", tagStyle: "bg-pink-500/10 text-pink-400 border-pink-500/20", description: "My first time visiting your school, followed by Samgyupsal with your friends!" },
-            { id: "oct-06", title: "October 6, 2026", url: "https://photos.app.goo.gl/RsatsMHHkWbX1x8dA", images: ["06.JPG", "06.1.JPG"], tag: "Baton Search & Tumbler Sprint", tagStyle: "bg-red-500/10 text-red-400 border-red-500/20", description: "Bought a baton downtown because I lost yours, went on a shopping spree for you, and ate Takoyaki. You almost lost your tumbler, but good thing you remembered! We stopped the bus and I ran as fast as I could back to Robinsons." },
+            { id: "oct-06", title: "October 6, 2026", url: "https://photos.app.goo.gl/RsatsMHHkWbX1x8dA", images: ["06.JPG", "06.1.JPG"], tag: "Shopping Spree", tagStyle: "bg-red-500/10 text-red-400 border-red-500/20", description: "Bought a baton downtown because I lost yours, went on a shopping spree for you, and ate Takoyaki. You almost lost your tumbler, but good thing you remembered! We stopped the bus and I ran as fast as I could back to Robinsons." },
             { id: "oct-07", title: "October 7, 2026", url: "https://photos.app.goo.gl/7bN28AzexJsk6K6e6", images: ["07.jpg", "07.1.JPG", "07.2.jpg"], tag: "Majorette, Billiards & Mr. Kimbob", tagStyle: "bg-violet-500/10 text-violet-400 border-violet-500/20", description: "Watched your Majorette performance at school, then at home you taught me your Dalgona recipe! We headed to the mall, planned for archery but it was closed, so we played billiards instead. Strolled through the plaza to SM City Iloilo where you showed me a hangout spot—a park with a row of Heart arcs. Bought donuts for us and your family, and tried Mr. Kimbob! I had the chapchae and beef (sweet!), while you had the kimchi, egg, and beef (perfectly balanced!)." },
-            { id: "oct-08", title: "October 8, 2026", url: "https://photos.app.goo.gl/acaQsF8BkEvKmN1o8", images: ["08.JPG", "08.1.JPG", "08.2.JPG"], tag: "Agatona & Archery Fail", tagStyle: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", description: "Our date at Agatona, one of the finest old restaurants in Iloilo—a super nice place that felt almost like a museum! We ate dinuguan, pancit molo, sausage platter, and halo-halo. Afterward we tried archery, where I sucked (and got a wound the first time trying it)! Bruh, I choked hard and got so self-conscious after that. Maybe next time I'll get it!" },
-            { id: "oct-09", title: "October 9, 2026", url: "https://photos.app.goo.gl/hdNuTrbk629GnqX99", images: ["09.jpg", "09.1.jpg", "09.2.jpg"], tag: "Fantasy World with Amanda", tagStyle: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", description: "Fantasy World with your friend Amanda! So fun and so many things to do—loved the wall climbing and slides. We buried ourselves in balls, rode the 360 bike, and crashed bumper cars into each other!" },
-            { id: "oct-10", title: "October 10, 2026", url: "https://photos.app.goo.gl/PNzwmzR699HkQkSv6", images: ["10.jpg", "10.1.jpg", "10.2.jpg"], tag: "Jogging Esplanades & Leche Flan", tagStyle: "bg-teal-500/10 text-teal-400 border-teal-500/20", description: "Morning jog across 3 Esplanades for your upcoming futsal! Took a break near Molo Church to eat famous Pancit Molo and drink caramel iced coffee. Finished at the esplanade near our archery/billiards mall, then walked to buy ingredients for your specialty Leche Flan. Coincidentally bumped into your dad, who gave us a ride back home after shopping!" },
-            { id: "oct-11", title: "October 11, 2026", url: "https://photos.app.goo.gl/H6CTx9Jc9BjZBpzx9", images: ["11.jpg", "11.1.jpg", "11.2.jpg"], tag: "Port Carinderia & Evening Mass", tagStyle: "bg-orange-500/10 text-orange-400 border-orange-500/20", description: "Family lunch date! Found a turo-turo carinderia right before the port with a beautiful view where we ate clams and chosen dishes. Stopped by Biscocho Haus for pasalubong—I tried giving money to your family for picking it out, but they refused. I'm so grateful! Went to church at night with family and your friend Evita, where I prayed for a safe flight." },
-            { id: "oct-12", title: "October 12, 2026", url: "https://photos.app.goo.gl/HiMd3KbTeUnH1YXk7", images: ["12.jpg", "12.1.jpg", "12.2.jpg"], tag: "Karaoke, 48 Coffee & Atchara Clutch", tagStyle: "bg-rose-500/10 text-rose-400 border-rose-500/20", description: "Last day! Went to Robinsons Jaro for Karaoke with Amanda and her boyfriend Robert, followed by Chowking. For our final night date, we went to 48 Coffee where I tried their good Dirty Matcha. Unforgettable airport goodbyes! Almost had to discard your mom's atchara because of plane rules, but rushed back to my luggage and managed to fit all 3 containers into ziplock bags and waterproof pouches just in time for the final boarding call!" }
+            { id: "oct-08", title: "October 8, 2026", url: "https://photos.app.goo.gl/acaQsF8BkEvKmN1o8", images: ["08.JPG", "08.1.JPG", "08.2.JPG"], tag: "Agatona", tagStyle: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", description: "Our date at Agatona, one of the finest old restaurants in Iloilo—a super nice place that felt almost like a museum! We ate dinuguan, pancit molo, sausage platter, and halo-halo. Afterward we tried archery, where I sucked (and got a wound the first time trying it)! Bruh, I choked hard and got so self-conscious after that. Maybe next time I'll get it!" },
+            { id: "oct-09", title: "October 9, 2026", url: "https://photos.app.goo.gl/hdNuTrbk629GnqX99", images: ["09.jpg", "09.1.jpg", "09.2.jpg"], tag: "Fantasy World", tagStyle: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", description: "Fantasy World with Amanda. So fun and so many things to do—loved the wall climbing and slides. We buried ourselves in balls, rode the 360 bike, and crashed bumper cars into each other!" },
+            { id: "oct-10", title: "October 10, 2026", url: "https://photos.app.goo.gl/PNzwmzR699HkQkSv6", images: ["10.jpg", "10.1.jpg", "10.2.jpg"], tag: "Jogging Esplanades", tagStyle: "bg-teal-500/10 text-teal-400 border-teal-500/20", description: "Morning jog across 3 Esplanades for your upcoming futsal! Took a break near Molo Church to eat famous Pancit Molo and drink caramel iced coffee. Finished at the esplanade near our archery/billiards mall, then walked to buy ingredients for your specialty Leche Flan. Coincidentally bumped into your dad, who gave us a ride back home after shopping!" },
+            { id: "oct-11", title: "October 11, 2026", url: "https://photos.app.goo.gl/H6CTx9Jc9BjZBpzx9", images: ["11.jpg", "11.1.jpg", "11.2.jpg"], tag: "Port Carinderia & Evening Mass", tagStyle: "bg-orange-500/10 text-orange-400 border-orange-500/20", description: "Family lunch date! Found a turo-turo carinderia right before the port with a beautiful view where we ate clams and chosen dishes. Stopped by Biscocho Haus for pasalubong—I tried giving money to your family for picking it out, but they refused. I'm so grateful! Went to church at night with family and Evita, where I prayed for a safe flight." },
+            { id: "oct-12", title: "October 12, 2026", url: "https://photos.app.goo.gl/HiMd3KbTeUnH1YXk7", images: ["12.jpg", "12.1.jpg", "12.2.jpg"], tag: "Karaoke, 48 Coffee, Last Day", tagStyle: "bg-rose-500/10 text-rose-400 border-rose-500/20", description: "Last day! Went to Robinsons Jaro for Karaoke with Amanda and her boyfriend Robert, followed by Chowking. For our final night date, we went to 48 Coffee where I tried their good Dirty Matcha. Unforgettable airport goodbyes! Almost had to discard your mom's atchara because of plane rules, but rushed back to my luggage and managed to fit all 3 containers into ziplock bags and waterproof pouches just in time for the final boarding call!" }
         ];
 
         const videoAlbumsMeta = [
-            { title: "October 4, 2026", images: ["04.JPG", "04.1.JPG"], tag: "Beach Memories", tagStyle: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", url: "https://u.pcloud.link/publink/show?code=kZ21QbJZnla0oYHGbVfOaGU1VwnDkjeyDgT7" },
-            { title: "October 7, 2026 (Part 1)", images: ["07.1.JPG", "07.jpg"], tag: "Majorette Performance", tagStyle: "bg-violet-500/10 text-violet-400 border-violet-500/20", url: "https://u.pcloud.link/publink/show?code=kZYDQbJZ0XKrjkA2Vi8UAzNdrkq4Nbl0EB5k" },
-            { title: "October 7, 2026 (Part 2)", images: ["07.2.jpg", "07.jpg"], tag: "Dalgona & Plaza Stroll", tagStyle: "bg-violet-500/10 text-violet-400 border-violet-500/20", url: "https://u.pcloud.link/publink/show?code=kZYDQbJZ0XKrjkA2Vi8UAzNdrkq4Nbl0EB5k" },
-            { title: "October 8, 2026", images: ["08.JPG", "08.1.JPG"], tag: "Agatona & Archery", tagStyle: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", url: "https://u.pcloud.link/publink/show?code=kZmDQbJZ568dgew6sJjRaTrWt3bxIXJDtWQk" },
-            { title: "October 9, 2026 (Part 1)", images: ["09.1.jpg", "09.jpg"], tag: "Fantasy World Fun", tagStyle: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", url: "https://u.pcloud.link/publink/show?code=kZbDQbJZijwGSRpOSfmpGuQby8AHRXL2tfFk" },
-            { title: "October 9, 2026 (Part 2)", images: ["09.2.jpg", "09.jpg"], tag: "Bumper Cars & Bike", tagStyle: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", url: "https://u.pcloud.link/publink/show?code=kZ91QbJZ5o52S8cNbNJSoS19pT3sT02hBf0k" },
-            { title: "October 10, 2026", images: ["10.jpg", "10.1.jpg"], tag: "Morning Jog & Molo", tagStyle: "bg-teal-500/10 text-teal-400 border-teal-500/20", url: "https://u.pcloud.link/publink/show?code=kZr1QbJZNbNEhMJfhl4tpwQ2YH0vbz5UIKSy" },
-            { title: "October 12, 2026", images: ["12.jpg", "12.1.jpg"], tag: "Karaoke & Farewell", tagStyle: "bg-rose-500/10 text-rose-400 border-rose-500/20", url: "https://u.pcloud.link/publink/show?code=kZo1QbJZl3tuH506ixFTqclCxoSiKQIdpslX" }
+            { title: "October 4, 2026", images: ["04.JPG", "04.1.JPG"], tag: "Beach Timelapse", tagStyle: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", url: "https://u.pcloud.link/publink/show?code=kZ21QbJZnla0oYHGbVfOaGU1VwnDkjeyDgT7" },
+            { title: "October 7, 2026", images: ["07.1.JPG", "07.jpg"], tag: "Billiard Timelapse, Esplanade Walk, Heart Park", tagStyle: "bg-violet-500/10 text-violet-400 border-violet-500/20", url: "https://u.pcloud.link/publink/show?code=kZYDQbJZ0XKrjkA2Vi8UAzNdrkq4Nbl0EB5k" },
+            { title: "October 8, 2026", images: ["08.JPG", "08.1.JPG"], tag: "Agatona Videos & Timelapse, Archery/Billiard Timelapse", tagStyle: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", url: "https://u.pcloud.link/publink/show?code=kZmDQbJZ568dgew6sJjRaTrWt3bxIXJDtWQk" },
+            { title: "October 9, 2026 (Part 1)", images: ["09.1.jpg", "09.jpg"], tag: "Fantasy World", tagStyle: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", url: "https://u.pcloud.link/publink/show?code=kZbDQbJZijwGSRpOSfmpGuQby8AHRXL2tfFk" },
+            { title: "October 9, 2026 (Part 2)", images: ["09.2.jpg", "09.jpg"], tag: "Fantasy World", tagStyle: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", url: "https://u.pcloud.link/publink/show?code=kZ91QbJZ5o52S8cNbNJSoS19pT3sT02hBf0k" },
+            { title: "October 10, 2026", images: ["10.jpg", "10.1.jpg"], tag: "Pancit Molo Reaction & Timelapse, Video on Esplanade", tagStyle: "bg-teal-500/10 text-teal-400 border-teal-500/20", url: "https://u.pcloud.link/publink/show?code=kZr1QbJZNbNEhMJfhl4tpwQ2YH0vbz5UIKSy" },
+            { title: "October 12, 2026", images: ["12.jpg", "12.1.jpg"], tag: "Kareoke Timelapse, 48 Coffee Last Date & Timelapse", tagStyle: "bg-rose-500/10 text-rose-400 border-rose-500/20", url: "https://u.pcloud.link/publink/show?code=kZo1QbJZl3tuH506ixFTqclCxoSiKQIdpslX" }
         ];
 
         function initApp() {
@@ -238,13 +239,13 @@
 
             document.getElementById('home-view').classList.remove('hidden');
             document.getElementById('embed-view').classList.add('hidden');
+            document.getElementById('embed-view').classList.remove('flex');
 
             // Render Photos Cards
             const photosContainer = document.getElementById('photos-grid');
             photosContainer.innerHTML = '';
             photoAlbumsMeta.forEach(album => {
                 const thumbHTML = renderStackedThumbnailHTML(album.images);
-                // The thumbnail is decorative and never navigates. The album details link to the supplied URL.
                 const card = document.createElement('div');
                 card.className = "bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-2xl overflow-visible hover:border-blue-500/60 transition-all shadow-xl flex flex-col p-4 sm:p-5 gap-4 relative group select-none";
                 const detailsLink = document.createElement('a');
@@ -272,7 +273,7 @@
                 photosContainer.appendChild(card);
             });
 
-            // Render Videos Cards
+            // Render Videos Cards (With Updated Custom Video Tags)
             const videosContainer = document.getElementById('videos-grid');
             videosContainer.innerHTML = '';
             videoAlbumsMeta.forEach(album => {
@@ -306,6 +307,9 @@
         }
 
         function openVideoPlayer(title, url) {
+            // Save scroll position before leaving home view
+            savedScrollPosition = window.scrollY || document.documentElement.scrollTop;
+
             document.getElementById('back-btn').classList.remove('hidden');
             
             const extBtn = document.getElementById('external-btn');
@@ -316,8 +320,9 @@
             document.getElementById('header-title').innerHTML = `<i data-lucide="video" class="w-5 h-5 text-purple-400"></i> ${title}`;
             document.getElementById('header-subtitle').textContent = 'pCloud Video';
 
-            document.getElementById('home-view').classList.add('hidden');
-            document.getElementById('embed-view').classList.remove('hidden');
+            const embedView = document.getElementById('embed-view');
+            embedView.classList.remove('hidden');
+            embedView.classList.add('flex');
 
             const loader = document.getElementById('video-loader');
             const wrapper = document.getElementById('iframe-wrapper');
@@ -327,7 +332,7 @@
 
             const iframe = document.createElement('iframe');
             iframe.src = url;
-            iframe.className = "w-full h-full border-0 bg-zinc-950";
+            iframe.className = "w-full h-full border-0 bg-zinc-950 rounded-2xl";
             iframe.allow = "autoplay; encrypted-media";
             iframe.setAttribute('allowfullscreen', '');
 
@@ -339,9 +344,28 @@
             lucide.createIcons();
         }
 
+        function handleOutsideIframeClick(event) {
+            // Close player when backdrop is clicked
+            showHome();
+        }
+
         function showHome() {
             document.getElementById('iframe-wrapper').innerHTML = '';
-            renderHome();
+            const embedView = document.getElementById('embed-view');
+            embedView.classList.add('hidden');
+            embedView.classList.remove('flex');
+
+            document.getElementById('back-btn').classList.add('hidden');
+            document.getElementById('external-btn').classList.add('hidden');
+            document.getElementById('external-btn').classList.remove('flex');
+            document.getElementById('header-title').innerHTML = `<i data-lucide="images" class="w-5 h-5 text-blue-400"></i> Our Memories`;
+            document.getElementById('header-subtitle').textContent = "Select a collection";
+
+            // Restore exact scroll position
+            window.scrollTo({
+                top: savedScrollPosition,
+                behavior: 'instant'
+            });
         }
 
         initApp();
